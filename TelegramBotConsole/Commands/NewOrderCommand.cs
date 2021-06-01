@@ -24,7 +24,7 @@ namespace TelegramBotConsole.Commands
             client.DefaultRequestHeaders.Add("SecretKEY", pass.Result.SecretKey);
         }
 
-        public async Task<Models.NewOrderModel> Request()
+        private async Task<Models.NewOrderModel> Request()
         {
             var json = JsonConvert.SerializeObject(json_order);
             var data = new StringContent(json, Encoding.UTF8, "application/json");

@@ -28,7 +28,6 @@ namespace TelegramBotConsole.Properties
             disableNotification: true,
             replyMarkup: Keyboards.NewOrderKeyboard.SecondStep);
         }
-
         internal static async void CallbackQuerySide(CallbackQueryEventArgs e, Commands.NewOrderCommand NewOrder, string side, string buf)
         {
             await Properties.Config.client.DeleteMessageAsync(chatId: e.CallbackQuery.Message.Chat, e.CallbackQuery.Message.MessageId);
@@ -62,7 +61,6 @@ namespace TelegramBotConsole.Properties
 
             await NewOrder.Execute(e.CallbackQuery.Message.Chat.Id);
         }
-
         internal static string GetCurrentRate(Models.ExchangeInfoModel response, string symbol,string symbolbuf = null)
         {
             if (symbolbuf == null)

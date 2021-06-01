@@ -13,6 +13,7 @@ namespace TelegramBotConsole
         Commands.NewOrderCommand NewOrder;
         Commands.DeleteOrderCommand DeleteOrder;
         Commands.SettingsBlock.AllOrderInformationCommand AllOrderInformation;
+        Commands.SettingsBlock.ChangeApiKeysCommand ChangeApiKeysCommands;
         public TelegramBot()
         {
             Properties.Config.client.OnMessage += ClientOnMessage;
@@ -183,6 +184,14 @@ namespace TelegramBotConsole
                     disableNotification: true,
                     replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
                     break;
+                case "♻️ Change API keys":
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: $"Enter your APIKEY:",
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyMarkup: new ForceReplyMarkup() { Selective = true });
+                    break;
                 case "/start":
 
                     break;
@@ -290,6 +299,25 @@ namespace TelegramBotConsole
             {
                 AllOrderInformation = new Commands.SettingsBlock.AllOrderInformationCommand(e);
                 await AllOrderInformation.Execute(e);
+            }
+            #endregion
+            #region ChangeKeys
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter your APIKEY:"))
+            {
+                ChangeApiKeysCommands.Model.ApiKey = e.Message.Text;
+
+                await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: $"Enter your SECRETKEY:",
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyMarkup: new ForceReplyMarkup() { Selective = true });
+            }
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter your SECRETKEY:"))
+            {
+                ChangeApiKeysCommands.Model.SecretKey = e.Message.Text;
+
+                await ChangeApiKeysCommands.Execute();
             }
             #endregion
         }
