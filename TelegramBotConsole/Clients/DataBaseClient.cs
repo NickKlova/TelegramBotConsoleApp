@@ -22,5 +22,14 @@ namespace TelegramBotConsole.Clients
 
             return json_response;
         }
+        public static async Task PostData(Models.DataBaseBlock.DatabaseModel db)
+        {
+            HttpClient client = new HttpClient();
+
+            var json = JsonConvert.SerializeObject(db);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync($"https://localhost:44370/api/DataBase", data);
+        }
     }
 }

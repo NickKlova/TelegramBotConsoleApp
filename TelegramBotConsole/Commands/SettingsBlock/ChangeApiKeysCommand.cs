@@ -25,7 +25,7 @@ namespace TelegramBotConsole.Commands.SettingsBlock
             var json = JsonConvert.SerializeObject(Model);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PutAsync($"api/Order/create", data);
+            var response = await client.PutAsync($"https://localhost:44370/api/DataBase", data);
 
             if (response.IsSuccessStatusCode)
             {

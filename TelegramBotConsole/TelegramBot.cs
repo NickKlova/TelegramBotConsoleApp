@@ -14,6 +14,7 @@ namespace TelegramBotConsole
         Commands.DeleteOrderCommand DeleteOrder;
         Commands.SettingsBlock.AllOrderInformationCommand AllOrderInformation;
         Commands.SettingsBlock.ChangeApiKeysCommand ChangeApiKeysCommands;
+        Commands.StartCommand StartCommand;
         public TelegramBot()
         {
             Properties.Config.client.OnMessage += ClientOnMessage;
@@ -185,6 +186,7 @@ namespace TelegramBotConsole
                     replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
                     break;
                 case "♻️ Change API keys":
+                    ChangeApiKeysCommands = new Commands.SettingsBlock.ChangeApiKeysCommand(e);
                     await Properties.Config.client.SendTextMessageAsync(
                     chatId: e.Message.Chat,
                     text: $"Enter your APIKEY:",
@@ -193,7 +195,17 @@ namespace TelegramBotConsole
                     replyMarkup: new ForceReplyMarkup() { Selective = true });
                     break;
                 case "/start":
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: $"Welcome to the bot. For correct operation, enter the correct api and binance secret keys.\n");
 
+                    StartCommand = new Commands.StartCommand(e);
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: $"Enter your ApiKey:",
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyMarkup: new ForceReplyMarkup() { Selective = true });
                     break;
                 case "/update":
                     await Properties.Config.client.SendTextMessageAsync(
@@ -318,6 +330,29 @@ namespace TelegramBotConsole
                 ChangeApiKeysCommands.Model.SecretKey = e.Message.Text;
 
                 await ChangeApiKeysCommands.Execute();
+            }
+            #endregion
+            #region StartCommand
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter your ApiKey:"))
+            {
+
+                StartCommand.db.ApiKey = e.Message.Text;
+
+                await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: $"Enter your SecretKey:",
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyMarkup: new ForceReplyMarkup() { Selective = true });
+
+            }
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter your SecretKey:"))
+            {
+
+                StartCommand.db.SecretKey = e.Message.Text;
+
+                await StartCommand.Execute();
+
             }
             #endregion
         }
