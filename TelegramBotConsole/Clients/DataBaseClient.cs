@@ -13,8 +13,8 @@ namespace TelegramBotConsole.Clients
         public static async Task<Models.DataBaseBlock.DatabaseModel> GetData(string username)
         {
             HttpClient client = new HttpClient();
-
-            var response = await client.GetAsync($"https://localhost:44370/api/DataBase?username=" + username);
+            client.BaseAddress = new Uri(Properties.Config.BaseURL);
+            var response = await client.GetAsync($"api/DataBase?username=" + username);
 
             var content = response.Content.ReadAsStringAsync().Result;
 
@@ -25,11 +25,11 @@ namespace TelegramBotConsole.Clients
         public static async Task PostData(Models.DataBaseBlock.DatabaseModel db)
         {
             HttpClient client = new HttpClient();
-
+            client.BaseAddress = new Uri(Properties.Config.BaseURL);
             var json = JsonConvert.SerializeObject(db);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"https://localhost:44370/api/DataBase", data);
+            var response = await client.PostAsync($"api/DataBase", data);
         }
     }
 }

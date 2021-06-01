@@ -8,6 +8,6 @@ namespace TelegramBotConsole.Properties
     static class Config
     {
         public static ITelegramBotClient client = new TelegramBotClient("1820771891:AAEYW_C5jPAHkJ5m_Lf15OrBDGhMsL-diPI");
-        public static string BaseURL { get; } = "https://localhost:44345/";
+        public static string BaseURL { get; } = "https://cryptotech.azurewebsites.net/";
     }
 }
