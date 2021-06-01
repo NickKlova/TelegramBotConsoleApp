@@ -18,7 +18,7 @@ namespace TelegramBotConsole.Commands
 
         private async Task<Models.ExchangeInfoModel> Request(string symbol)
         {
-            var response = await client.GetAsync("https://localhost:44393/api/ExchangePrice?symbol=" + symbol);
+            var response = await client.GetAsync(Properties.Config.BaseURL + "api/ExchangePrice?symbol=" + symbol);
 
             var content = response.Content.ReadAsStringAsync().Result;
 

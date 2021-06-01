@@ -60,7 +60,7 @@ namespace TelegramBotConsole.Properties
             parseMode: ParseMode.Markdown,
             disableNotification: true);
 
-            await NewOrder.Execute(e.CallbackQuery.Message.Chat.Id);
+            await NewOrder.Execute(e);
         }
 
         internal static string GetCurrentRate(string symbol,  Models.ExchangeInfoModel response)

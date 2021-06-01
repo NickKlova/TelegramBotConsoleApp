@@ -6,6 +6,7 @@ namespace TelegramBotConsole.Models
 {
     class AccountModel
     {
+        public bool canTrade { get; set; }
         public bool canWidthdraw { get; set; }
         public string accountType { get; set; }
         public Balance[] balances { get; set; }

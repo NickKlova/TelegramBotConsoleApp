@@ -12,16 +12,20 @@ namespace TelegramBotConsole.Commands
 {
     class AccountCommand : Command
     {
-        public AccountCommand()
+        public AccountCommand(MessageEventArgs e)
         {
             client = new HttpClient();
-            client.DefaultRequestHeaders.Add("AKEY", "ewiXtk9THv9Hmu9SdB6GDuJOTYnXwVm12VmCDCGrq0jBEXHGjFL17sxUCcoJmxTQ");
-            client.DefaultRequestHeaders.Add("SKEY", "rUHdC4m4pgvTJkrmCZCww0VWXk6ACjhRmt55wMDoR6nLzgmTqmNPefUO45Ew4Yyu");
+            client.BaseAddress = new Uri(Properties.Config.BaseURL);
+
+            var pass = Clients.DataBaseClient.GetData(e.Message.From.Username);
+
+            client.DefaultRequestHeaders.Add("ApiKEY", pass.Result.ApiKey);
+            client.DefaultRequestHeaders.Add("SecretKEY", pass.Result.SecretKey);
         }
 
         private async Task<Models.AccountModel> Request()
         {
-            var response = await client.GetAsync($"https://localhost:44393/api/Account/info/get");
+            var response = await client.GetAsync($"api/Account/info");
 
             var content = response.Content.ReadAsStringAsync().Result;
 
@@ -32,8 +36,7 @@ namespace TelegramBotConsole.Commands
 
         public async Task Execute(MessageEventArgs e)
         {
-            var account = new Commands.AccountCommand();
-            Models.AccountModel obj = await account.Request();
+            var obj = await Request();
 
             string buf = $"📍 Account type: {obj.accountType}\n";
             for (int i = 0; i < obj.balances.Length; i++)

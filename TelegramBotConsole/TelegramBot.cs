@@ -10,9 +10,9 @@ namespace TelegramBotConsole
 {
     class TelegramBot
     {
-        Commands.NewOrderCommand NewOrder = new Commands.NewOrderCommand();
-        Commands.DeleteOrderCommand DeleteOrder = new Commands.DeleteOrderCommand();
-        Commands.SettingsBlock.OrderInformationCommand OrderInformation = new Commands.SettingsBlock.OrderInformationCommand();
+        Commands.NewOrderCommand NewOrder;
+        Commands.DeleteOrderCommand DeleteOrder;
+        Commands.SettingsBlock.OrderInformationCommand OrderInformation;
         public TelegramBot()
         {
             Properties.Config.client.OnMessage += ClientOnMessage;
@@ -23,7 +23,7 @@ namespace TelegramBotConsole
         private async void ClientOnCallbackQuery(object sender, CallbackQueryEventArgs e)
         {
             #region Coins
-            if(e.CallbackQuery.Data == "BTCUSDT")
+            if (e.CallbackQuery.Data == "BTCUSDT")
             {
                 Properties.Tools.CallbackQueryCoins(e, NewOrder, "BTCUSDT", "You choose BTC to USDT!");
             }
@@ -37,7 +37,7 @@ namespace TelegramBotConsole
             }
 
             if (e.CallbackQuery.Data == "coinCustom")
-            {                
+            {
                 var message = await Properties.Config.client.SendTextMessageAsync(
                 chatId: e.CallbackQuery.Message.Chat,
                 text: $"Enter yor cryptocurrency pair:",
@@ -86,7 +86,7 @@ namespace TelegramBotConsole
             }
             #endregion
             #region ExchangeInfo
-            if(e.CallbackQuery.Data == "AnotherCoinCurrentRate")
+            if (e.CallbackQuery.Data == "AnotherCoinCurrentRate")
             {
                 var message = await Properties.Config.client.SendTextMessageAsync(
                                 chatId: e.CallbackQuery.Message.Chat,
@@ -119,7 +119,7 @@ namespace TelegramBotConsole
             }
             if(e.CallbackQuery.Data == "AllOpenOrders")
             {
-                Commands.SettingsBlock.AllOpenOrderInformationCommand command = new Commands.SettingsBlock.AllOpenOrderInformationCommand();
+                Commands.SettingsBlock.AllOpenOrderInformationCommand command = new Commands.SettingsBlock.AllOpenOrderInformationCommand(e);
                 await command.Execute(e);
             }
             if (e.CallbackQuery.Data == "OpenOrders")
@@ -141,10 +141,11 @@ namespace TelegramBotConsole
             switch (e.Message.Text)
             {
                 case "📊 Account":
-                    Commands.AccountCommand command = new Commands.AccountCommand();
+                    Commands.AccountCommand command = new Commands.AccountCommand(e);
                     await command.Execute(e);
                     break;
                 case "💳 New order":
+                    NewOrder = new Commands.NewOrderCommand(e);
                     await Properties.Config.client.SendTextMessageAsync(
                     chatId: e.Message.Chat,
                     text: $"Choose cryptocurrency pair: ",
@@ -153,6 +154,7 @@ namespace TelegramBotConsole
                     replyMarkup: Keyboards.NewOrderKeyboard.FirstStep);
                     break;
                 case "❌ Delete order":
+                    DeleteOrder = new Commands.DeleteOrderCommand(e);
                     await Properties.Config.client.SendTextMessageAsync(
                     chatId: e.Message.Chat,
                     text: $"Enter cryptocurrency pair for deleting: ",
@@ -165,7 +167,7 @@ namespace TelegramBotConsole
                     await commandRate.Execute(e);
                     break;
                 case "〽️ Daily statistics":
-                    Commands.DailyStatisticsCommand commandDaily = new Commands.DailyStatisticsCommand();
+                    Commands.DailyStatisticsCommand commandDaily = new Commands.DailyStatisticsCommand(e);
                     await commandDaily.Execute(e);
                     break;
                 case "⚙️ Settings":
@@ -177,6 +179,7 @@ namespace TelegramBotConsole
                     replyMarkup: Keyboards.SettingsBlock.SettingsReplyKeyboard.BaseKeyboard);
                     break;
                 case "🌐 Order information":
+                    OrderInformation = new Commands.SettingsBlock.OrderInformationCommand(e);
                     await Properties.Config.client.SendTextMessageAsync(
                     chatId: e.Message.Chat,
                     text: "What exactly are you interested in?",
@@ -269,7 +272,7 @@ namespace TelegramBotConsole
             #region DailyStatistics
             if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter yor cryptocurrency coin:")) //или текст, который вы отправляли
             {
-                Commands.DailyStatisticsCommand commandDaily = new Commands.DailyStatisticsCommand();
+                Commands.DailyStatisticsCommand commandDaily = new Commands.DailyStatisticsCommand(e);
                 await commandDaily.Execute(e, e.Message.Text);
             }
             #endregion
@@ -290,14 +293,14 @@ namespace TelegramBotConsole
             if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter order Id:")) //или текст, который вы отправляли
             {
                 //OrderInformation.orderinfo.orderId = Convert.ToInt32(e.Message.Text);
-                Commands.SettingsBlock.OrderInformationCommand OrderInfo = new Commands.SettingsBlock.OrderInformationCommand();
+                Commands.SettingsBlock.OrderInformationCommand OrderInfo = new Commands.SettingsBlock.OrderInformationCommand(e);
                 await OrderInfo.Execute(e);
             }
             #endregion
             #region AllOrders
             if(e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter symbol for orders:")) //или текст, который вы отправляли
             {
-                Commands.SettingsBlock.AllOrderInformationCommand command = new Commands.SettingsBlock.AllOrderInformationCommand();
+                Commands.SettingsBlock.AllOrderInformationCommand command = new Commands.SettingsBlock.AllOrderInformationCommand(e);
                 await command.Execute(e);
             }
             #endregion

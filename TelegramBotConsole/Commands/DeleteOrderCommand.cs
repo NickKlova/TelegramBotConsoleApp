@@ -12,16 +12,20 @@ namespace TelegramBotConsole.Commands
     class DeleteOrderCommand : Command
     {
         public RequestBodyJson.DeleteOrderRequest order = new RequestBodyJson.DeleteOrderRequest();
-        public DeleteOrderCommand()
+        public DeleteOrderCommand(MessageEventArgs e)
         {
             client = new HttpClient();
-            client.DefaultRequestHeaders.Add("AKEY", "ewiXtk9THv9Hmu9SdB6GDuJOTYnXwVm12VmCDCGrq0jBEXHGjFL17sxUCcoJmxTQ");
-            client.DefaultRequestHeaders.Add("SKEY", "rUHdC4m4pgvTJkrmCZCww0VWXk6ACjhRmt55wMDoR6nLzgmTqmNPefUO45Ew4Yyu");
+            client.BaseAddress = new Uri(Properties.Config.BaseURL);
+
+            var pass = Clients.DataBaseClient.GetData(e.Message.From.Username);
+
+            client.DefaultRequestHeaders.Add("ApiKEY", pass.Result.ApiKey);
+            client.DefaultRequestHeaders.Add("SecretKEY", pass.Result.SecretKey);
         }
 
         private async Task<Models.DeleteOrderModel> Request()
         {
-            var response = await client.DeleteAsync($"https://localhost:44393/api/Order/cancelOrder?symbol={order.symbol}&orderId={order.orderId}");
+            var response = await client.DeleteAsync($"api/Order/cancel?symbol={order.symbol}&orderId={order.orderId}");
 
             var content = response.Content.ReadAsStringAsync().Result;
 

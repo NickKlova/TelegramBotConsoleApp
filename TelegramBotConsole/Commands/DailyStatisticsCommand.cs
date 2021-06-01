@@ -11,10 +11,14 @@ namespace TelegramBotConsole.Commands
 {
     class DailyStatisticsCommand : Command
     {
-        public DailyStatisticsCommand()
+        public DailyStatisticsCommand(MessageEventArgs e)
         {
             client = new HttpClient();
-            client.DefaultRequestHeaders.Add("AKEY", "ewiXtk9THv9Hmu9SdB6GDuJOTYnXwVm12VmCDCGrq0jBEXHGjFL17sxUCcoJmxTQ");
+            client.BaseAddress = new Uri(Properties.Config.BaseURL);
+
+            var pass = Clients.DataBaseClient.GetData(e.Message.From.Username);
+
+            client.DefaultRequestHeaders.Add("ApiKEY", pass.Result.ApiKey);
         }
 
         private async Task<Models.DailyStatisticsModel> Request(string symbol = "BTCUSDT")

@@ -12,16 +12,20 @@ namespace TelegramBotConsole.Commands.SettingsBlock
     class OrderInformationCommand : Command
     {
         public RequestBodyJson.OrderInformationRequest orderinfo = new RequestBodyJson.OrderInformationRequest();
-        public OrderInformationCommand()
+        public OrderInformationCommand(MessageEventArgs e)
         {
             client = new HttpClient();
-            client.DefaultRequestHeaders.Add("AKEY", "ewiXtk9THv9Hmu9SdB6GDuJOTYnXwVm12VmCDCGrq0jBEXHGjFL17sxUCcoJmxTQ");
-            client.DefaultRequestHeaders.Add("SKEY", "rUHdC4m4pgvTJkrmCZCww0VWXk6ACjhRmt55wMDoR6nLzgmTqmNPefUO45Ew4Yyu");
+            client.BaseAddress = new Uri(Properties.Config.BaseURL);
+
+            var pass = Clients.DataBaseClient.GetData(e.Message.From.Username);
+
+            client.DefaultRequestHeaders.Add("ApiKEY", pass.Result.ApiKey);
+            client.DefaultRequestHeaders.Add("SecretKEY", pass.Result.SecretKey);
         }
 
         private async Task<Models.SettingsBlock.OrderInformationModel> Request()
         {
-            var response = await client.GetAsync($"https://localhost:44393/api/Order/info/get?symbol=" + orderinfo.symbol + "&orderId=" + orderinfo.orderId);
+            var response = await client.GetAsync($"api/Order/getinfo?symbol={orderinfo.symbol}&orderId={orderinfo.orderId}");
 
             var content = response.Content.ReadAsStringAsync().Result;
 

@@ -13,11 +13,15 @@ namespace TelegramBotConsole.Commands
     {
         public RequestBodyJson.NewOrderRequest json_order = new RequestBodyJson.NewOrderRequest();
 
-        public NewOrderCommand()
+        public NewOrderCommand(MessageEventArgs e)
         {
             client = new HttpClient();
-            client.DefaultRequestHeaders.Add("AKEY", "ewiXtk9THv9Hmu9SdB6GDuJOTYnXwVm12VmCDCGrq0jBEXHGjFL17sxUCcoJmxTQ");
-            client.DefaultRequestHeaders.Add("SKEY", "rUHdC4m4pgvTJkrmCZCww0VWXk6ACjhRmt55wMDoR6nLzgmTqmNPefUO45Ew4Yyu");
+            client.BaseAddress = new Uri(Properties.Config.BaseURL);
+
+            var pass = Clients.DataBaseClient.GetData(e.Message.From.Username);
+
+            client.DefaultRequestHeaders.Add("ApiKEY", pass.Result.ApiKey);
+            client.DefaultRequestHeaders.Add("SecretKEY", pass.Result.SecretKey);
         }
 
         public async Task<Models.NewOrderModel> Request()
@@ -25,7 +29,7 @@ namespace TelegramBotConsole.Commands
             var json = JsonConvert.SerializeObject(json_order);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"https://localhost:44393/api/Order/createOrder", data);
+            var response = await client.PostAsync($"api/Order/create", data);
 
             var content = response.Content.ReadAsStringAsync().Result;
 
@@ -34,16 +38,34 @@ namespace TelegramBotConsole.Commands
             return json_response;
         }
 
-        public async Task Execute(long ChatId)
+        public async Task Execute(CallbackQueryEventArgs e)
         {
             var obj = await Request();
 
-            await Properties.Config.client.SendTextMessageAsync(
-            chatId: ChatId,
-            text: $"The order has been sent :)",
-            parseMode: ParseMode.Markdown,
-            disableNotification: true,
-            replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+            if (obj == null)
+            {
+                await Properties.Config.client.SendTextMessageAsync(
+                            chatId: e.CallbackQuery.Message.Chat.Id,
+                            text: $"An error has occurred! ⚠️\n" +
+                            $"Check the correctness of the data entered!",
+                            parseMode: ParseMode.Markdown,
+                            disableNotification: true,
+                            replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+            }
+            else
+            {
+                await Properties.Config.client.SendTextMessageAsync(
+                            chatId: e.CallbackQuery.Message.Chat.Id,
+                            text: $"🖇 Success! The order has been created.\n\n" +
+                            $"⚠️ Client orderId: {obj.clientOrderId}\n" +
+                            $"⚠️ OrderId: {obj.orderId}\n\n" +
+                            $"📌 Symbol: {obj.symbol}\n\n" +
+                            $"Price: {obj.price}\n\n" +
+                            $"Purchased or sold: {obj.side}",
+                            parseMode: ParseMode.Markdown,
+                            disableNotification: true,
+                            replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+            }
         }
     }
 }
