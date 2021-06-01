@@ -8,7 +8,7 @@ namespace TelegramBotConsole.Keyboards
     class NewOrderKeyboard
     {
         public static InlineKeyboardMarkup FirstStep = new InlineKeyboardMarkup(new[]
-        {
+       {
             new []
             {
                 InlineKeyboardButton.WithCallbackData("BTC/USDT","BTCUSDT"),
@@ -16,8 +16,7 @@ namespace TelegramBotConsole.Keyboards
             },
             new[]
             {
-                InlineKeyboardButton.WithCallbackData("LTC/BTC","LTCBTC"),
-                InlineKeyboardButton.WithCallbackData("Other...", "coinCustom")
+                InlineKeyboardButton.WithCallbackData("Other ❌", "coinCustom")
             }
         });
 
@@ -25,8 +24,8 @@ namespace TelegramBotConsole.Keyboards
         {
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Buy","BUY"),
-                InlineKeyboardButton.WithCallbackData("Sell", "SELL")
+                InlineKeyboardButton.WithCallbackData("⬆️ Buy","BUY"),
+                InlineKeyboardButton.WithCallbackData("⬇️ Sell", "SELL")
             }
         });
 
@@ -34,15 +33,15 @@ namespace TelegramBotConsole.Keyboards
         {
             new []
             {
-                InlineKeyboardButton.WithCallbackData("100%","100percent"),
-                InlineKeyboardButton.WithCallbackData("75%", "75percent"),
-                InlineKeyboardButton.WithCallbackData("50%", "50percent")
+                InlineKeyboardButton.WithCallbackData("50$","50$"),
+                InlineKeyboardButton.WithCallbackData("30$", "30$"),
+                InlineKeyboardButton.WithCallbackData("20$", "20$")
 
             },
             new[]
             {
-                InlineKeyboardButton.WithCallbackData("25%","25percent"),
-                InlineKeyboardButton.WithCallbackData("Other...", "customPercent")
+                InlineKeyboardButton.WithCallbackData("10$","10$"),
+                InlineKeyboardButton.WithCallbackData("Other 💵", "customPrice")
             }
         });
     }

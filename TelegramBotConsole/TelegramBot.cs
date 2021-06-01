@@ -12,7 +12,7 @@ namespace TelegramBotConsole
     {
         Commands.NewOrderCommand NewOrder;
         Commands.DeleteOrderCommand DeleteOrder;
-        Commands.SettingsBlock.OrderInformationCommand OrderInformation;
+        Commands.SettingsBlock.AllOrderInformationCommand AllOrderInformation;
         public TelegramBot()
         {
             Properties.Config.client.OnMessage += ClientOnMessage;
@@ -31,16 +31,12 @@ namespace TelegramBotConsole
             {
                 Properties.Tools.CallbackQueryCoins(e, NewOrder, "ETHUSDT", "You choose ETH to USDT!");
             }
-            if (e.CallbackQuery.Data == "LTCBTC")
-            {
-                Properties.Tools.CallbackQueryCoins(e, NewOrder, "LTCBTC", "You choose LTC to BTC!");
-            }
 
             if (e.CallbackQuery.Data == "coinCustom")
             {
-                var message = await Properties.Config.client.SendTextMessageAsync(
+                await Properties.Config.client.SendTextMessageAsync(
                 chatId: e.CallbackQuery.Message.Chat,
-                text: $"Enter yor cryptocurrency pair:",
+                text: $"💷 Enter yor cryptocurrency pair:",
                 parseMode: ParseMode.Markdown,
                 disableNotification: true,
                 replyMarkup: new ForceReplyMarkup() { Selective = true });
@@ -57,40 +53,40 @@ namespace TelegramBotConsole
             }
             #endregion
             #region Quantity
-            if (e.CallbackQuery.Data == "100percent")
+            if (e.CallbackQuery.Data == "50$")
             {
-                Properties.Tools.CallbackQueryQuantity(e, NewOrder, 100, "100%? You're tough!");
+                Properties.Tools.CallbackQueryQuantity(e, NewOrder, 50, "Then I will buy coins for this amount! ($ 50)");
             }
-            if (e.CallbackQuery.Data == "75percent")
+            if (e.CallbackQuery.Data == "30$")
             {
-                Properties.Tools.CallbackQueryQuantity(e, NewOrder, 75, "75%? Right choise!");
+                Properties.Tools.CallbackQueryQuantity(e, NewOrder, 30, "Then I will buy coins for this amount! ($ 30)");
             }
-            if (e.CallbackQuery.Data == "50percent")
+            if (e.CallbackQuery.Data == "20$")
             {
-                Properties.Tools.CallbackQueryQuantity(e, NewOrder, 50, "50%? Not bad!");
+                Properties.Tools.CallbackQueryQuantity(e, NewOrder, 20, "Then I will buy coins for this amount! ($ 20)");
             }
-            if (e.CallbackQuery.Data == "25percent")
+            if (e.CallbackQuery.Data == "10$")
             {
-                Properties.Tools.CallbackQueryQuantity(e, NewOrder, 25, "25%? Pretty boy!");
+                Properties.Tools.CallbackQueryQuantity(e, NewOrder, 10, "Then I will buy coins for this amount! ($ 10)");
             }
-            if (e.CallbackQuery.Data == "customPercent")
+            if (e.CallbackQuery.Data == "customPrice")
             {
                 await Properties.Config.client.DeleteMessageAsync(chatId: e.CallbackQuery.Message.Chat, e.CallbackQuery.Message.MessageId);
 
-                var message = await Properties.Config.client.SendTextMessageAsync(
+                await Properties.Config.client.SendTextMessageAsync(
                 chatId: e.CallbackQuery.Message.Chat,
-                text: $"Enter the amount:",
+                text: $"💰 Enter the amount:",
                 parseMode: ParseMode.Markdown,
                 disableNotification: true,
                 replyMarkup: new ForceReplyMarkup() { Selective = true });
             }
             #endregion
-            #region ExchangeInfo
+            #region CurrentRate
             if (e.CallbackQuery.Data == "AnotherCoinCurrentRate")
             {
                 var message = await Properties.Config.client.SendTextMessageAsync(
                                 chatId: e.CallbackQuery.Message.Chat,
-                                text: $"Enter yor cryptocurrency pair for exchangeinfo:",
+                                text: $"Enter the cryptocurrency pair to get the current rate on popular exchanges:",
                                 parseMode: ParseMode.Markdown,
                                 disableNotification: true,
                                 replyMarkup: new ForceReplyMarkup() { Selective = true });
@@ -101,36 +97,21 @@ namespace TelegramBotConsole
             {
                 var message = await Properties.Config.client.SendTextMessageAsync(
                                 chatId: e.CallbackQuery.Message.Chat,
-                                text: $"Enter yor cryptocurrency coin:",
+                                text: $"📤 Enter yor cryptocurrency coin:",
                                 parseMode: ParseMode.Markdown,
                                 disableNotification: true,
                                 replyMarkup: new ForceReplyMarkup() { Selective = true });
             }
             #endregion
             #region SettingsBlock
-            if(e.CallbackQuery.Data == "SpecificOrder")
+            if(e.CallbackQuery.Data == "AllOrders")
             {
-                var message = await Properties.Config.client.SendTextMessageAsync(
+                await Properties.Config.client.SendTextMessageAsync(
                                 chatId: e.CallbackQuery.Message.Chat,
-                                text: $"Enter symbol:",
+                                text: $"Enter symbol for get all orders:",
                                 parseMode: ParseMode.Markdown,
                                 disableNotification: true,
                                 replyMarkup: new ForceReplyMarkup() { Selective = true });
-            }
-            if(e.CallbackQuery.Data == "AllOpenOrders")
-            {
-                Commands.SettingsBlock.AllOpenOrderInformationCommand command = new Commands.SettingsBlock.AllOpenOrderInformationCommand(e);
-                await command.Execute(e);
-            }
-            if (e.CallbackQuery.Data == "OpenOrders")
-            {
-                var message = await Properties.Config.client.SendTextMessageAsync(
-                               chatId: e.CallbackQuery.Message.Chat,
-                               text: $"Enter symbol for orders:",
-                               parseMode: ParseMode.Markdown,
-                               disableNotification: true,
-                               replyMarkup: new ForceReplyMarkup() { Selective = true });
-
             }
             #endregion
         }
@@ -148,7 +129,7 @@ namespace TelegramBotConsole
                     NewOrder = new Commands.NewOrderCommand(e);
                     await Properties.Config.client.SendTextMessageAsync(
                     chatId: e.Message.Chat,
-                    text: $"Choose cryptocurrency pair: ",
+                    text: $"Choose cryptocurrency pair:",
                     parseMode: ParseMode.Markdown,
                     disableNotification: true,
                     replyMarkup: Keyboards.NewOrderKeyboard.FirstStep);
@@ -157,7 +138,7 @@ namespace TelegramBotConsole
                     DeleteOrder = new Commands.DeleteOrderCommand(e);
                     await Properties.Config.client.SendTextMessageAsync(
                     chatId: e.Message.Chat,
-                    text: $"Enter cryptocurrency pair for deleting: ",
+                    text: $"Enter cryptocurrency pair for deleting:",
                     parseMode: ParseMode.Markdown,
                     disableNotification: true,
                     replyMarkup: new ForceReplyMarkup() { Selective = true });
@@ -179,7 +160,6 @@ namespace TelegramBotConsole
                     replyMarkup: Keyboards.SettingsBlock.SettingsReplyKeyboard.BaseKeyboard);
                     break;
                 case "🌐 Order information":
-                    OrderInformation = new Commands.SettingsBlock.OrderInformationCommand(e);
                     await Properties.Config.client.SendTextMessageAsync(
                     chatId: e.Message.Chat,
                     text: "What exactly are you interested in?",
@@ -215,95 +195,102 @@ namespace TelegramBotConsole
                     replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
                     break;
             }
+            #region CreateOrder
             #region Coins
-            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter yor cryptocurrency pair:")) //или текст, который вы отправляли
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("💷 Enter yor cryptocurrency pair:"))
             {
                 NewOrder.json_order.symbol = e.Message.Text;
 
                 await Properties.Config.client.SendTextMessageAsync(
                 chatId: e.Message.Chat,
-                text: $"Specify the type of transaction (Buy/Sell): ",
+                text: $"Specify the type of transaction (⬆️Buy / ⬇️Sell):",
                 parseMode: ParseMode.Markdown,
                 disableNotification: true,
                 replyMarkup: Keyboards.NewOrderKeyboard.SecondStep);
             }
             #endregion
             #region Quantity
-            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter the amount:")) //или текст, который вы отправляли
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("💰 Enter the amount:"))
             {
-                NewOrder.json_order.quantity = Convert.ToDecimal(e.Message.Text);
+                await Properties.Config.client.DeleteMessageAsync(chatId: e.Message.Chat, e.Message.MessageId);
 
-                await NewOrder.Execute(e.Message.Chat.Id);
+                try
+                {
+                    NewOrder.json_order.quantity = Convert.ToDecimal(e.Message.Text);
+                    await NewOrder.Execute(e.Message.Chat.Id);
+                }
+                catch
+                {
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: $"❌ Enter correct message!",
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                }  
             }
             #endregion
+            #endregion
             #region DeleteOrder
-            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter cryptocurrency pair for deleting:")) //или текст, который вы отправляли
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter cryptocurrency pair for deleting:"))
             {
+
                 DeleteOrder.order.symbol = e.Message.Text;
 
                 await Properties.Config.client.SendTextMessageAsync(
                 chatId: e.Message.Chat,
-                text: $"Ok, then enter order id: ",
+                text: $"Good, then enter order id:",
                 parseMode: ParseMode.Markdown,
                 disableNotification: true,
                 replyMarkup: new ForceReplyMarkup() { Selective = true });
             }
-            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Ok, then enter order id:")) //или текст, который вы отправляли
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Good, then enter order id:"))
             {
-                DeleteOrder.order.orderId = Convert.ToInt32(e.Message.Text);
+                try
+                {
+                    DeleteOrder.order.orderId = Convert.ToInt32(e.Message.Text);
 
-                await Properties.Config.client.SendTextMessageAsync(
-                chatId: e.Message.Chat,
-                text: $"Ok, order sent for deletion!",
-                parseMode: ParseMode.Markdown,
-                disableNotification: true,
-                replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: $"Ok, order sent for deletion!",
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
 
-                await DeleteOrder.Execute(e);
+                    await DeleteOrder.Execute(e);
+                }
+                catch
+                {
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: $"❌ Enter correct message!",
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                }
+                
             }
             #endregion
-            #region ExchangeInfo
-            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter yor cryptocurrency pair for exchangeinfo:")) //или текст, который вы отправляли
+            #region CurrentRate
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter the cryptocurrency pair to get the current rate on popular exchanges:")) 
             {
                 Commands.CurrentRateCommand commandRate = new Commands.CurrentRateCommand();
                 await commandRate.Execute(e, e.Message.Text);
             }
             #endregion
             #region DailyStatistics
-            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter yor cryptocurrency coin:")) //или текст, который вы отправляли
+            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("📤 Enter yor cryptocurrency coin:")) //или текст, который вы отправляли
             {
                 Commands.DailyStatisticsCommand commandDaily = new Commands.DailyStatisticsCommand(e);
                 await commandDaily.Execute(e, e.Message.Text);
             }
             #endregion
-            #region SettingsBlock
-            #region OrderInfo
-            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter symbol:")) //или текст, который вы отправляли
-            {
-                OrderInformation.orderinfo.symbol = e.Message.Text;
-
-                var message = await Properties.Config.client.SendTextMessageAsync(
-                                chatId: e.Message.Chat,
-                                text: $"Enter order Id:",
-                                parseMode: ParseMode.Markdown,
-                                disableNotification: true,
-                                replyMarkup: new ForceReplyMarkup() { Selective = true });
-
-            }
-            if (e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter order Id:")) //или текст, который вы отправляли
-            {
-                //OrderInformation.orderinfo.orderId = Convert.ToInt32(e.Message.Text);
-                Commands.SettingsBlock.OrderInformationCommand OrderInfo = new Commands.SettingsBlock.OrderInformationCommand(e);
-                await OrderInfo.Execute(e);
-            }
-            #endregion
             #region AllOrders
-            if(e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter symbol for orders:")) //или текст, который вы отправляли
+            if(e.Message.ReplyToMessage != null && e.Message.ReplyToMessage.Text.Contains("Enter symbol for get all orders:")) //или текст, который вы отправляли
             {
-                Commands.SettingsBlock.AllOrderInformationCommand command = new Commands.SettingsBlock.AllOrderInformationCommand(e);
-                await command.Execute(e);
+                AllOrderInformation = new Commands.SettingsBlock.AllOrderInformationCommand(e);
+                await AllOrderInformation.Execute(e);
             }
-            #endregion
             #endregion
         }
     }

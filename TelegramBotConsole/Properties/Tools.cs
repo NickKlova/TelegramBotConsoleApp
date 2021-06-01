@@ -16,14 +16,14 @@ namespace TelegramBotConsole.Properties
             NewOrder.json_order.symbol = coin;
 
             await Properties.Config.client.SendTextMessageAsync(
-           chatId: e.CallbackQuery.Message.Chat,
-           text: buf,
-           parseMode: ParseMode.Markdown,
-           disableNotification: true);
+            chatId: e.CallbackQuery.Message.Chat,
+            text: buf,
+            parseMode: ParseMode.Markdown,
+            disableNotification: true);
 
             await Properties.Config.client.SendTextMessageAsync(
             chatId: e.CallbackQuery.Message.Chat,
-            text: $"Specify the type of transaction (Buy/Sell): ",
+            text: $"Specify the type of transaction (⬆️Buy / ⬇️Sell):",
             parseMode: ParseMode.Markdown,
             disableNotification: true,
             replyMarkup: Keyboards.NewOrderKeyboard.SecondStep);
@@ -43,7 +43,7 @@ namespace TelegramBotConsole.Properties
 
             await Properties.Config.client.SendTextMessageAsync(
             chatId: e.CallbackQuery.Message.Chat,
-            text: $"Choose a percentage of the total purchase quantity: ",
+            text: $"💰 Enter the amount:",
             parseMode: ParseMode.Markdown,
             disableNotification: true,
             replyMarkup: Keyboards.NewOrderKeyboard.ThirdStep);
@@ -60,12 +60,15 @@ namespace TelegramBotConsole.Properties
             parseMode: ParseMode.Markdown,
             disableNotification: true);
 
-            await NewOrder.Execute(e);
+            await NewOrder.Execute(e.CallbackQuery.Message.Chat.Id);
         }
 
-        internal static string GetCurrentRate(string symbol,  Models.ExchangeInfoModel response)
+        internal static string GetCurrentRate(Models.ExchangeInfoModel response, string symbol,string symbolbuf = null)
         {
-            string buf = $"{symbol} price:\n";
+            if (symbolbuf == null)
+                symbolbuf = symbol;
+
+            string buf = $"{symbolbuf} price:\n\n";
             
             for (int i = 0; i < response.data.Length; i++)
             {
@@ -73,10 +76,9 @@ namespace TelegramBotConsole.Properties
                 {
                     if (response.data[i].baseId == symbol && response.data[i].quoteSymbol == "USDT")
                     {
-                        buf += $"Stock exchange: {response.data[i].exchangeId}\n" +
-                            $"24 hour's volume: {response.data[i].volumeUsd24Hr}\n" +
-                            $"Price in dollars: {response.data[i].priceUsd}\n\n\n";
-
+                        buf += $"🆔 Stock exchange: {response.data[i].exchangeId}\n" +
+                            $"24 hour's volume: {response.data[i].volumeUsd24Hr}$\n" +
+                            $"Price in dollars: {response.data[i].priceUsd}$\n\n\n";
                     }
                 }
             }

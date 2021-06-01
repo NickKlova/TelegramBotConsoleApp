@@ -11,8 +11,6 @@ namespace TelegramBotConsole.Keyboards.SettingsBlock
         {
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Information about a specific order","SpecificOrder"),
-                InlineKeyboardButton.WithCallbackData("Information about open orders","AllOpenOrders"),
                 InlineKeyboardButton.WithCallbackData("Information about all orders","AllOrders")
             }
         });

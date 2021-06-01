@@ -20,11 +20,19 @@ namespace TelegramBotConsole.Commands
         {
             var response = await client.GetAsync(Properties.Config.BaseURL + "api/ExchangePrice?symbol=" + symbol);
 
-            var content = response.Content.ReadAsStringAsync().Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
 
-            var json_response = JsonConvert.DeserializeObject<Models.ExchangeInfoModel>(content);
+                var json_response = JsonConvert.DeserializeObject<Models.ExchangeInfoModel>(content);
 
-            return json_response;
+                return json_response;
+            }
+            else
+            {
+                return null;
+            }
+            
         }
 
         public async Task Execute(MessageEventArgs e, string symbol = null)
@@ -36,31 +44,43 @@ namespace TelegramBotConsole.Commands
                 var response_XRP = await Request("xrp");
 
                 string buf = null;
-                buf += Properties.Tools.GetCurrentRate("bitcoin", response_BTC);
-                buf += Properties.Tools.GetCurrentRate("ethereum", response_ETH);
-                buf += Properties.Tools.GetCurrentRate("xrp", response_XRP);
+                buf += Properties.Tools.GetCurrentRate(response_BTC, "bitcoin", "✅ BITCOIN");
+                buf += Properties.Tools.GetCurrentRate(response_ETH, "ethereum", "💹 ETHEREUM");
+                buf += Properties.Tools.GetCurrentRate(response_XRP, "xrp", "❎ RIPPLE");
 
                 await Properties.Config.client.SendTextMessageAsync(
                 chatId: e.Message.Chat,
-            text: buf,
-            parseMode: ParseMode.Markdown,
-            disableNotification: true,
-            replyToMessageId: e.Message.MessageId,
-            replyMarkup: Keyboards.CurrentRateKeyboard.FirstStep);
+                text: buf,
+                parseMode: ParseMode.Markdown,
+                disableNotification: true,
+                replyToMessageId: e.Message.MessageId,
+                replyMarkup: Keyboards.CurrentRateKeyboard.FirstStep);
             }
             else
             {
                 var response = await Request(symbol);
-
-                string buf = null;
-                buf += Properties.Tools.GetCurrentRate(symbol, response);
-                await Properties.Config.client.SendTextMessageAsync(
-                chatId: e.Message.Chat,
-            text: buf,
-            parseMode: ParseMode.Markdown,
-            disableNotification: true,
-            replyToMessageId: e.Message.MessageId,
-            replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                if (response != null)
+                {
+                    string buf = null;
+                    buf += Properties.Tools.GetCurrentRate(response, symbol);
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: buf,
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyToMessageId: e.Message.MessageId,
+                    replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                }
+                else
+                {
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                    text: "Enter an existing coin! 😡",
+                    parseMode: ParseMode.Markdown,
+                    disableNotification: true,
+                    replyToMessageId: e.Message.MessageId,
+                    replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                }
             }
         }
     }

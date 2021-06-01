@@ -23,13 +23,19 @@ namespace TelegramBotConsole.Commands
 
         private async Task<Models.DailyStatisticsModel> Request(string symbol = "BTCUSDT")
         {
-            var response = await client.GetAsync("https://localhost:44393/api/GenInfo?symbol="+symbol);
+            var response = await client.GetAsync("api/Rate?symbol=" + symbol);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
 
-            var content = response.Content.ReadAsStringAsync().Result;
+                var json_response = JsonConvert.DeserializeObject<Models.DailyStatisticsModel>(content);
 
-            var json_response = JsonConvert.DeserializeObject<Models.DailyStatisticsModel>(content);
-
-            return json_response;
+                return json_response;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task Execute(MessageEventArgs e, string symbol = null)
@@ -38,7 +44,12 @@ namespace TelegramBotConsole.Commands
             {
                 var response = await Request();
 
-                string buf = $"{response.highPrice}, {response.lowPrice}, {response.lastPrice}, {response.priceChange}, {response.volume}, {response.symbol}";
+                string buf = $"🧳 CryptoPair: {response.symbol}\n\n" +
+                        $"Highest price per day: {response.highPrice}$\n\n" +
+                        $"Lowest price per day: {response.lowPrice}$\n\n" +
+                        $"Current price: {response.lastPrice}$\n\n" +
+                        $"How much has the price changed: {response.priceChange}$\n\n" +
+                        $"Market volatility: {response.volume}$";
 
                 await Properties.Config.client.SendTextMessageAsync(
                 chatId: e.Message.Chat,
@@ -51,16 +62,33 @@ namespace TelegramBotConsole.Commands
             else
             {
                 var response = await Request(symbol);
+                if(response != null)
+                {
+                    string buf = $"🧳 CryptoPair: {response.symbol}\n\n" +
+                        $"Highest price per day: {response.highPrice}$\n\n" +
+                        $"Lowest price per day: {response.lowPrice}$\n\n" +
+                        $"Current price: {response.lastPrice}$\n\n" +
+                        $"How much has the price changed: {response.priceChange}$\n\n" +
+                        $"Market volatility: {response.volume}$";
 
-                string buf = $"{response.highPrice}, {response.lowPrice}, {response.lastPrice}, {response.priceChange}, {response.volume}, {response.symbol}";
-
-                await Properties.Config.client.SendTextMessageAsync(
-                chatId: e.Message.Chat,
-            text: buf,
-            parseMode: ParseMode.Markdown,
-            disableNotification: true,
-            replyToMessageId: e.Message.MessageId,
-            replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                text: buf,
+                parseMode: ParseMode.Markdown,
+                disableNotification: true,
+                replyToMessageId: e.Message.MessageId,
+                replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                }
+                else
+                {
+                    await Properties.Config.client.SendTextMessageAsync(
+                    chatId: e.Message.Chat,
+                text: "Enter correct symbol! 😡",
+                parseMode: ParseMode.Markdown,
+                disableNotification: true,
+                replyToMessageId: e.Message.MessageId,
+                replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+                }
             }
         }
     }

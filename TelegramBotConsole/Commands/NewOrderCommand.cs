@@ -31,21 +31,29 @@ namespace TelegramBotConsole.Commands
 
             var response = await client.PostAsync($"api/Order/create", data);
 
-            var content = response.Content.ReadAsStringAsync().Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
 
-            var json_response = JsonConvert.DeserializeObject<Models.NewOrderModel>(content);
+                var json_response = JsonConvert.DeserializeObject<Models.NewOrderModel>(content);
 
-            return json_response;
+                return json_response;
+            }
+            else
+            {
+                return null;
+            }
+            
         }
 
-        public async Task Execute(CallbackQueryEventArgs e)
+        public async Task Execute(long chatId)
         {
             var obj = await Request();
 
             if (obj == null)
             {
                 await Properties.Config.client.SendTextMessageAsync(
-                            chatId: e.CallbackQuery.Message.Chat.Id,
+                            chatId: chatId,
                             text: $"An error has occurred! ⚠️\n" +
                             $"Check the correctness of the data entered!",
                             parseMode: ParseMode.Markdown,
@@ -55,7 +63,7 @@ namespace TelegramBotConsole.Commands
             else
             {
                 await Properties.Config.client.SendTextMessageAsync(
-                            chatId: e.CallbackQuery.Message.Chat.Id,
+                            chatId: chatId,
                             text: $"🖇 Success! The order has been created.\n\n" +
                             $"⚠️ Client orderId: {obj.clientOrderId}\n" +
                             $"⚠️ OrderId: {obj.orderId}\n\n" +

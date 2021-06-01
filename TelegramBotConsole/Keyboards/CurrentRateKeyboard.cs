@@ -11,7 +11,7 @@ namespace TelegramBotConsole.Keyboards
         {
             new []
             {
-                InlineKeyboardButton.WithCallbackData("Another coin ...","AnotherCoinCurrentRate"),
+                InlineKeyboardButton.WithCallbackData("📤 Another coin 📤","AnotherCoinCurrentRate"),
             }
         });
     }

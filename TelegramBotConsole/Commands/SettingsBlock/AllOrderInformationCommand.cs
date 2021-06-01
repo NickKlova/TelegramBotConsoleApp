@@ -25,25 +25,53 @@ namespace TelegramBotConsole.Commands.SettingsBlock
         private async Task<Models.SettingsBlock.OrderInformationModel[]> Request(string symbol)
         {
             var response = await client.GetAsync($"api/Order/getinfo/all?symbol={symbol}");
-
-            var content = response.Content.ReadAsStringAsync().Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
 
             var json_response = JsonConvert.DeserializeObject<Models.SettingsBlock.OrderInformationModel[]>(content);
 
             return json_response;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task Execute(MessageEventArgs e)
         {
-            var response = Request(e.Message.Text);
-
-            await Properties.Config.client.SendTextMessageAsync(
-                chatId: e.Message.Chat,
-            text: $"Information about order",
-            parseMode: ParseMode.Markdown,
-            disableNotification: true,
-            replyToMessageId: e.Message.MessageId,
-            replyMarkup: Keyboards.SettingsBlock.SettingsReplyKeyboard.BaseKeyboard);
+            var response = await Request(e.Message.Text);
+            if (response != null)
+            {
+                string buf = $"📱 Information about order:\n\n";
+                foreach (var i in response)
+                {
+                    buf += $"CryptoPair: {i.symbol}\n" +
+                           $"Status: {i.status}\n" +
+                           $"Type: {i.type}\n" +
+                           $"Buy | sell order: {i.side}\n" +
+                           $"Price: {i.price}$\n\n";
+                }
+                await Properties.Config.client.SendTextMessageAsync(
+                               chatId: e.Message.Chat,
+                           text: buf,
+                           parseMode: ParseMode.Markdown,
+                           disableNotification: true,
+                           replyToMessageId: e.Message.MessageId,
+                           replyMarkup: Keyboards.SettingsBlock.SettingsReplyKeyboard.BaseKeyboard);
+            }
+            else
+            {
+                await Properties.Config.client.SendTextMessageAsync(
+                               chatId: e.Message.Chat,
+                           text: $"Enter correct message!",
+                           parseMode: ParseMode.Markdown,
+                           disableNotification: true,
+                           replyToMessageId: e.Message.MessageId,
+                           replyMarkup: Keyboards.SettingsBlock.SettingsReplyKeyboard.BaseKeyboard);
+            }
+            
         }
     }
 }

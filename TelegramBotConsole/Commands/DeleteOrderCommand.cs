@@ -26,19 +26,26 @@ namespace TelegramBotConsole.Commands
         private async Task<Models.DeleteOrderModel> Request()
         {
             var response = await client.DeleteAsync($"api/Order/cancel?symbol={order.symbol}&orderId={order.orderId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
 
-            var content = response.Content.ReadAsStringAsync().Result;
+                var json_response = JsonConvert.DeserializeObject<Models.DeleteOrderModel>(content);
 
-            var json_response = JsonConvert.DeserializeObject<Models.DeleteOrderModel>(content);
-
-            return json_response;
+                return json_response;
+            }
+            else
+            {
+                return null;
+            }    
         }
 
         public async Task Execute(MessageEventArgs e)
         {
             var obj = Request().Result;
-
-            await Properties.Config.client.SendTextMessageAsync(
+            if(obj != null)
+            {
+                await Properties.Config.client.SendTextMessageAsync(
             chatId: e.Message.Chat,
             text: $"Coin: {obj.symbol}\n" +
             $"Id: {obj.orderId}\n" +
@@ -48,6 +55,17 @@ namespace TelegramBotConsole.Commands
             disableNotification: true,
             replyToMessageId: e.Message.MessageId,
             replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+            }
+            else
+            {
+                await Properties.Config.client.SendTextMessageAsync(
+                                            chatId: e.Message.Chat.Id,
+                                            text: $"An error has occurred! ⚠️\n" +
+                                            $"Check the correctness of the data entered!",
+                                            parseMode: ParseMode.Markdown,
+                                            disableNotification: true,
+                                            replyMarkup: Keyboards.BaseReplyKeyboard.BaseKeyboard);
+            }
         }
     }
 }
